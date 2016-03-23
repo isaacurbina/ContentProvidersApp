@@ -10,6 +10,7 @@
         android:id="@+id/tv_row_event"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:hint="Text goes here"
         android:padding="16dp"/>
 
 </LinearLayout>

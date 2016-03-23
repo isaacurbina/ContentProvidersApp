@@ -9,21 +9,21 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-public class CalendarCursorAdapter extends CursorAdapter {
+public class EventCursorAdapter extends CursorAdapter {
 
     private LayoutInflater inflater;
 
-    public CalendarCursorAdapter(Context context, Cursor c) {
+    public EventCursorAdapter(Context context, Cursor c) {
         super(context, c);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public CalendarCursorAdapter(Context context, Cursor c, boolean autoRequery) {
+    public EventCursorAdapter(Context context, Cursor c, boolean autoRequery) {
         super(context, c, autoRequery);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public CalendarCursorAdapter(Context context, Cursor c, int flags) {
+    public EventCursorAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -36,10 +36,12 @@ public class CalendarCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         TextView tvRowEvent = (TextView) view.findViewById(R.id.tv_row_event);
-        tvRowEvent.setText(
-                        cursor.getString((cursor.getColumnIndex(CalendarContract.Calendars._ID)))+
+        tvRowEvent.setText(cursor.getString(cursor.getColumnIndex(CalendarContract.Events._ID))+
                         " "+
-                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
+                        cursor.getString(cursor.getColumnIndex(CalendarContract.Events.TITLE))+
+                        "\n"+
+                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars._ID))
                         );
     }
 }
+

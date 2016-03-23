@@ -1,66 +1,52 @@
 package com.mac.isaac.contentprovidersapp;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import com.fastaccess.permission.base.PermissionHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class Main2Activity extends AppCompatActivity {
 
     final String READ_CALENDAR = Manifest.permission.READ_CALENDAR;
     final String WRITE_CALENDAR = Manifest.permission.WRITE_CALENDAR;
     final int REQUEST_PERMISSION_RESULT = 1;
-    private ListView listCalendars;
+    private ListView listEvents;
+    private long calendar_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        listCalendars = (ListView) findViewById(R.id.list_calendars);
-        listCalendars.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-              @Override
-              public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                  // id = Calendar._ID
-                  // Create Intent
-                  // Create Bundle and pass id
-                  // Start Activity
-                  Intent openCalendarIntent = new Intent(MainActivity.this, Main2Activity.class);
-                  openCalendarIntent.putExtra("CALENDAR_ID", id);
-                  Log.d("MYAPP", "MainActivity Calendar_ID is " + id);
-                  startActivity(openCalendarIntent);
-              }
-           }
-        );
-        loadCalendars();
+        setContentView(R.layout.activity_main2);
+        if (getIntent().hasExtra("CALENDAR_ID"))
+            calendar_id = getIntent().getExtras().getLong("CALENDAR_ID");
+        Log.d("MYAPP", "MainActivity2 Calendar_ID is "+calendar_id);
+        listEvents = (ListView) findViewById(R.id.list_events);
+        loadEvents();
     }
 
-    private void loadCalendars() {
-        Uri uri = CalendarContract.Calendars.CONTENT_URI;
+    private void loadEvents() {
+        Uri uri = CalendarContract.Events.CONTENT_URI;
         String[] projection = {
-                CalendarContract.Calendars._ID,
-                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
+                CalendarContract.Events._ID,
+                CalendarContract.Events.TITLE,
+                CalendarContract.Calendars._ID
         };
-        String selection = CalendarContract.Calendars.CALENDAR_DISPLAY_NAME+" = ?";
+        String selection = CalendarContract.Events.CALENDAR_ID+" = ?";
         String[] selectionArgs = {
-                "holiday's"
+                String.valueOf(calendar_id)
         };
-        String sortOrder = CalendarContract.Calendars.NAME + " ASC";
+        String sortOrder = CalendarContract.Events.TITLE + " ASC";
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
@@ -71,13 +57,13 @@ public class MainActivity extends AppCompatActivity {
             checkPermission();
         } else {
             Cursor cursor = getContentResolver()
-                    .query(uri, projection, null, null, sortOrder);
-            CalendarCursorAdapter adapter = new CalendarCursorAdapter(this, cursor,0);
-            listCalendars.setAdapter(adapter);
+                    .query(uri, projection, selection, selectionArgs, sortOrder);
+            EventCursorAdapter adapter = new EventCursorAdapter(this, cursor,0);
+            listEvents.setAdapter(adapter);
         }
     }
 
-    private void checkPermission() {
+    public void checkPermission() {
 
         List<String> permissionsToRequest = new ArrayList<>();
 
@@ -94,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         if (permissionsToRequest.size() != 0) {
             ActivityCompat.requestPermissions(this, permissionsList, REQUEST_PERMISSION_RESULT);
         } else {
-            loadCalendars();
+            loadEvents();
         }
 
     }
@@ -116,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        loadCalendars();
+        loadEvents();
     }
-
 }
